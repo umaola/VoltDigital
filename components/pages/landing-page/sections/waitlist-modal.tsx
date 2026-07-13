@@ -96,26 +96,44 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
     setIsLoading(true)
 
-    // Simulate network latency
-    setTimeout(() => {
-      // Fetch current waitlist from localStorage
-      const existingWaitlist = JSON.parse(localStorage.getItem("volt_waitlist") || "[]")
-      
-      const newEntry = {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        disco,
-        timestamp: new Date().toISOString()
-      }
-
-      existingWaitlist.push(newEntry)
-      localStorage.setItem("volt_waitlist", JSON.stringify(existingWaitlist))
-
-      // Set unique queue number
-      setQueueNumber(2450 + existingWaitlist.length)
+    const emailLower = email.trim().toLowerCase()
+    const existingWaitlist = JSON.parse(localStorage.getItem("volt_waitlist") || "[]")
+    const emailExists = existingWaitlist.some((entry: any) => entry.email === emailLower)
+    
+    if (emailExists) {
+      setEmailError("This email is already registered on the waitlist.")
       setIsLoading(false)
-      setIsSuccess(true)
-    }, 1500)
+      return
+    }
+
+    const newEntry = {
+      type: "waitlist",
+      name: name.trim(),
+      email: emailLower,
+      disco,
+      timestamp: new Date().toISOString()
+    }
+
+    fetch("https://script.google.com/macros/s/AKfycbz9tvpytFwJiOK-1KvEinhlsnOJsVKrRhzxPPEj9Lk59vOj3VFBKTy-DLudgpBFKfVp/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newEntry)
+    })
+      .then(() => {
+        existingWaitlist.push(newEntry)
+        localStorage.setItem("volt_waitlist", JSON.stringify(existingWaitlist))
+        setIsLoading(false)
+        setIsSuccess(true)
+      })
+      .catch(() => {
+        existingWaitlist.push(newEntry)
+        localStorage.setItem("volt_waitlist", JSON.stringify(existingWaitlist))
+        setIsLoading(false)
+        setIsSuccess(true)
+      })
   }
 
   const shareText = `I just joined the waiting list for Volt, Nigeria's smart electricity unit tracker! Get insights on your tariff and appliances. Join me here: http://localhost:3001`
@@ -222,40 +240,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             <div className="flex flex-col gap-1 mt-2">
               <h3 className="text-2xl font-extrabold text-[#052e16] tracking-tight">You are on the list!</h3>
               <p className="text-xs font-semibold text-[#4B5563] leading-relaxed max-w-xs mx-auto">
-                Finish line is in sight. We will email you instructions as soon as the onboarding slots open up.
+                We will email you instructions as soon as the onboarding slots open up.
               </p>
-            </div>
-
-            {/* Queue position badge */}
-            <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl w-full max-w-xs my-4 flex flex-col gap-1">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Your Position in Queue</span>
-              <span className="text-3xl font-black text-[#121212]">#{queueNumber.toLocaleString()}</span>
-              <span className="text-[9px] text-[#00BF63] font-bold mt-0.5 leading-none">
-                Join 2,450+ Nigerians optimizing their meters.
-              </span>
-            </div>
-
-            {/* Social Sharing */}
-            <div className="w-full flex flex-col gap-2 pt-2 border-t border-gray-50 mt-2">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Help your neighbors optimize</span>
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-10 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center gap-2 text-xs font-bold transition-colors"
-                >
-                  <span>WhatsApp</span>
-                </a>
-                <a
-                  href={twitterUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-10 rounded-xl bg-black hover:opacity-90 text-white flex items-center justify-center gap-2 text-xs font-bold transition-colors"
-                >
-                  <span>Share on X</span>
-                </a>
-              </div>
             </div>
 
             <button

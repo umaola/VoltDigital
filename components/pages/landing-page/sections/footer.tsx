@@ -30,8 +30,11 @@ export function Footer() {
             className="flex items-center gap-2 cursor-pointer select-none" 
             onClick={handleLogoClick} 
           >
-            <img src="/logo-mark.png" alt="Volt Logo" className="h-9 w-auto object-contain" />
-            <span className="font-extrabold text-xl text-white tracking-tight leading-none">Volt</span>
+            <img 
+              src="/logo-white.png" 
+              alt="Volt Logo" 
+              className="h-7 w-auto object-contain" 
+            />
           </div>
           <p className="text-sm font-semibold italic text-gray-400 leading-relaxed max-w-sm mt-1">
             "Your tariff, your appliances, your control."

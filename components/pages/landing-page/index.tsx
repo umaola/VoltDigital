@@ -16,6 +16,21 @@ import { TermsPage } from "../terms-page"
 import { PrivacyPage } from "../privacy-page"
 import { BlogPage } from "../blog-page"
 
+const DEFAULT_RATES: Record<string, Record<string, number>> = {
+  "ikeja-electric": { "Band A": 206.80, "Band B": 61.20, "Band C": 49.50, "Band D": 36.80, "Band E": 36.80 },
+  "eko-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "abuja-electric": { "Band A": 209.50, "Band B": 63.20, "Band C": 51.00, "Band D": 38.00, "Band E": 38.00 },
+  "kano-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "portharcourt-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "jos-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "ibadan-electric": { "Band A": 205.00, "Band B": 60.50, "Band C": 48.80, "Band D": 35.50, "Band E": 35.50 },
+  "kaduna-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "enugu-electric": { "Band A": 211.00, "Band B": 64.00, "Band C": 52.20, "Band D": 39.50, "Band E": 39.50 },
+  "benin-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "aba-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 },
+  "yola-electric": { "Band A": 209.50, "Band B": 62.50, "Band C": 50.00, "Band D": 37.50, "Band E": 37.50 }
+}
+
 export default function LandingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -23,6 +38,66 @@ export default function LandingPage() {
   const [isWaitlistOpen, setIsWaitlistOpen] = React.useState(false)
   const [isAdminOpen, setIsAdminOpen] = React.useState(false)
   const [activePage, setActivePage] = React.useState<string | null>(null)
+  
+  const [tariffs, setTariffs] = React.useState<any[] | null>(null)
+  const [isTariffLoading, setIsTariffLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    let active = true
+
+    const loadLocalFallback = () => {
+      fetch("/tariffs.json")
+        .then((r) => r.json())
+        .then((localData) => {
+          if (active) {
+            setTariffs(localData.discos)
+            setIsTariffLoading(false)
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setIsTariffLoading(false)
+          }
+        })
+    }
+
+    fetch("https://api.arewasmart.com.ng/api/v1/electricity/variations")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res && res.status === "success" && Array.isArray(res.data)) {
+          const apiDiscos = res.data.filter((d: any) => d.status === "enabled")
+          const uniqueDiscos = Array.from(
+            new Map(apiDiscos.map((item: any) => [item.service_id, item])).values()
+          ) as any[]
+          
+          const mapped = uniqueDiscos.map((d: any) => ({
+            code: d.service_id,
+            name: d.service_name,
+            rates: DEFAULT_RATES[d.service_id] || {
+              "Band A": 209.50,
+              "Band B": 62.50,
+              "Band C": 50.00,
+              "Band D": 37.50,
+              "Band E": 37.50,
+            }
+          }))
+
+          if (active) {
+            setTariffs(mapped)
+            setIsTariffLoading(false)
+          }
+        } else {
+          loadLocalFallback()
+        }
+      })
+      .catch(() => {
+        loadLocalFallback()
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   // Listen to query parameters for page routing
   React.useEffect(() => {
@@ -136,10 +211,10 @@ export default function LandingPage() {
         <Features />
 
         {/* Interactive Prepaid Unit Calculator */}
-        <CalculatorSimulator onJoinWaitlist={handleOpenWaitlist} />
+        <CalculatorSimulator onJoinWaitlist={handleOpenWaitlist} tariffs={tariffs} isLoading={isTariffLoading} />
 
         {/* Interactive Appliance Consumption Auditor */}
-        <ApplianceSimulator onJoinWaitlist={handleOpenWaitlist} />
+        <ApplianceSimulator onJoinWaitlist={handleOpenWaitlist} tariffs={tariffs} isLoading={isTariffLoading} />
 
         {/* Frequently Asked Questions */}
         <FAQ />

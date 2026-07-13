@@ -1,0 +1,136 @@
+{
+  "discos": [
+    {
+      "code": "ikeja-electric",
+      "name": "Ikeja Electric (IKEDC)",
+      "rates": {
+        "Band A": 206.80,
+        "Band B": 61.20,
+        "Band C": 49.50,
+        "Band D": 36.80,
+        "Band E": 36.80
+      }
+    },
+    {
+      "code": "eko-electric",
+      "name": "Eko Electric (EKEDC)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "abuja-electric",
+      "name": "Abuja Electric (AEDC)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 63.20,
+        "Band C": 51.00,
+        "Band D": 38.00,
+        "Band E": 38.00
+      }
+    },
+    {
+      "code": "kano-electric",
+      "name": "Kano Electric (KEDCO)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "portharcourt-electric",
+      "name": "Port Harcourt Electric (PHED)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "jos-electric",
+      "name": "Jos Electric (JED)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "ibadan-electric",
+      "name": "Ibadan Electric (IBEDC)",
+      "rates": {
+        "Band A": 205.00,
+        "Band B": 60.50,
+        "Band C": 48.80,
+        "Band D": 35.50,
+        "Band E": 35.50
+      }
+    },
+    {
+      "code": "kaduna-electric",
+      "name": "Kaduna Electric (KAEDCO)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "enugu-electric",
+      "name": "Enugu Electric (EEDC)",
+      "rates": {
+        "Band A": 211.00,
+        "Band B": 64.00,
+        "Band C": 52.20,
+        "Band D": 39.50,
+        "Band E": 39.50
+      }
+    },
+    {
+      "code": "benin-electric",
+      "name": "Benin Electric (BEDC)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "aba-electric",
+      "name": "Aba Electric (ABA)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    },
+    {
+      "code": "yola-electric",
+      "name": "Yola Electric (YEDC)",
+      "rates": {
+        "Band A": 209.50,
+        "Band B": 62.50,
+        "Band C": 50.00,
+        "Band D": 37.50,
+        "Band E": 37.50
+      }
+    }
+  ]
+}

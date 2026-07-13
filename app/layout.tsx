@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Volt — Electricity Management and Usage Tracking",
   description: "Smart electricity management and usage tracking platform. Predict prepaid units, monitor burn rates, audit home appliances, and get alerts before sudden blackouts.",
   keywords: ["Volt", "prepaid meter", "prepaid", "tariff band", "EKEDP", "IKEDC", "NERC", "electricity tracker", "Nigeria", "energy auditor"],
+  icons: {
+    icon: "/favicon.svg",
+  },
 }
 
 export default function RootLayout({
@@ -17,7 +20,7 @@ export default function RootLayout({
       lang="en"
       className="scroll-smooth h-full antialiased font-sans"
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>{children}</body>
     </html>
   )
 }

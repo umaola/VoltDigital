@@ -53,12 +53,13 @@ export function Header({
           className="flex items-center gap-2 cursor-pointer select-none" 
           onClick={onNavigateHome}
         >
-          <img src="/logo-mark.png" alt="Volt Logo" className="h-9 w-auto object-contain" />
-          <span className={`font-extrabold text-xl tracking-tight leading-none transition-colors duration-300 ${
-            isDarkHeader ? "text-white" : "text-[#121212]"
-          }`}>
-            Volt
-          </span>
+          <img 
+            src="/logo-bold.png" 
+            alt="Volt Logo" 
+            className={`h-7 w-auto object-contain transition-all duration-300 ${
+              isDarkHeader ? "brightness-0 invert" : ""
+            }`} 
+          />
         </div>
 
         {/* Navigation Links - Desktop */}

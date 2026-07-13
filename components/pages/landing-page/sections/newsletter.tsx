@@ -35,26 +35,51 @@ export function Newsletter({ onSubscribeSuccess }: NewsletterProps) {
 
     setIsLoading(true)
 
-    // Simulate database write
-    setTimeout(() => {
-      if (typeof window !== "undefined") {
-        const existingSubscribers = JSON.parse(localStorage.getItem("volt_newsletter") || "[]")
-        const newSubscriber = {
-          email: email.trim().toLowerCase(),
-          promo_accepted: acceptPromotional,
-          timestamp: new Date().toISOString()
-        }
+    const emailLower = email.trim().toLowerCase()
+    const existingSubscribers = JSON.parse(localStorage.getItem("volt_newsletter") || "[]")
+    const emailExists = existingSubscribers.some((entry: any) => entry.email === emailLower)
+    
+    if (emailExists) {
+      setEmailError("This email is already subscribed.")
+      setIsLoading(false)
+      return
+    }
+
+    const newSubscriber = {
+      type: "newsletter",
+      email: emailLower,
+      promo_accepted: acceptPromotional,
+      timestamp: new Date().toISOString()
+    }
+
+    fetch("https://script.google.com/macros/s/AKfycbz9tvpytFwJiOK-1KvEinhlsnOJsVKrRhzxPPEj9Lk59vOj3VFBKTy-DLudgpBFKfVp/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newSubscriber)
+    })
+      .then(() => {
         existingSubscribers.push(newSubscriber)
         localStorage.setItem("volt_newsletter", JSON.stringify(existingSubscribers))
-      }
-
-      setIsLoading(false)
-      setIsSuccess(true)
-      if (onSubscribeSuccess) {
-        onSubscribeSuccess(email)
-      }
-      setEmail("")
-    }, 1500)
+        setIsLoading(false)
+        setIsSuccess(true)
+        if (onSubscribeSuccess) {
+          onSubscribeSuccess(email)
+        }
+        setEmail("")
+      })
+      .catch(() => {
+        existingSubscribers.push(newSubscriber)
+        localStorage.setItem("volt_newsletter", JSON.stringify(existingSubscribers))
+        setIsLoading(false)
+        setIsSuccess(true)
+        if (onSubscribeSuccess) {
+          onSubscribeSuccess(email)
+        }
+        setEmail("")
+      })
   }
 
   return (
