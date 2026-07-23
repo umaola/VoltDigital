@@ -283,7 +283,7 @@ export function TermsPage({ onBack }: TermsPageProps) {
           <div className="flex flex-col gap-4 text-left">
             <h3 className="font-bold text-[#121212] text-base">12. Contact Information</h3>
             <p>If you have any questions about these Terms, please contact us at:</p>
-            <p>Email: <strong>info@volt.com</strong></p>
+            <p>Email: <a href="mailto:info@voltdigitalservices.com" className="font-bold underline hover:text-primary transition-colors">info@voltdigitalservices.com</a></p>
           </div>
         </div>
       </main>

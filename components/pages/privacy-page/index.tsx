@@ -143,7 +143,7 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
               If you have any questions, concerns, or requests regarding this Privacy Policy or our data
               practices, please contact us at:
             </p>
-            <p>Email: <strong>info@volt.com</strong></p>
+            <p>Email: <a href="mailto:info@voltdigitalservices.com" className="font-bold underline hover:text-primary transition-colors">info@voltdigitalservices.com</a></p>
           </div>
         </div>
       </main>

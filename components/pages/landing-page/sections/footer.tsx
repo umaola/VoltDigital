@@ -56,8 +56,8 @@ export function Footer() {
           {/* Contact Us Menu */}
           <div className="flex flex-col gap-3">
             <h4 className="text-xs font-bold text-gray-300 uppercase tracking-widest">Contact us</h4>
-            <a href="mailto:support@voltapp.ng" className="text-sm font-semibold hover:text-primary transition-colors">
-              support@voltapp.ng
+            <a href="mailto:info@voltdigitalservices.com" className="text-sm font-semibold hover:text-primary transition-colors">
+              info@voltdigitalservices.com
             </a>
             <a href="tel:+2348118104331" className="text-sm font-semibold hover:text-primary transition-colors">
               +2348118104331
