@@ -21,6 +21,7 @@ const DISCOS = [
   "KAEDCO - Kaduna Electric",
   "YEDC - Yola Electricity Distribution",
   "BENIN - Benin Electricity Distribution",
+  "ABA - Aba Electric Distribution",
 ]
 
 export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
