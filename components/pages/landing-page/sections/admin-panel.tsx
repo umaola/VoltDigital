@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { IconFolder, IconX, IconDownload, IconTrash } from "@tabler/icons-react"
 import { StandardCard } from "@/components/design-system/card"
 import { PrimaryButton } from "@/components/design-system/button"
 
@@ -61,7 +62,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           return `"${cleanName}","${cleanEmail}","${cleanDisco}","${entry.timestamp}"`
         })
         .join("\n")
-      
+
       triggerDownload(headers + rows, "volt_waitlist_export")
     } else {
       if (newsletterEntries.length === 0) return
@@ -72,7 +73,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           return `"${cleanEmail}","${entry.timestamp}"`
         })
         .join("\n")
-      
+
       triggerDownload(headers + rows, "volt_newsletter_export")
     }
   }
@@ -80,7 +81,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const triggerDownload = (csvText: string, filePrefix: string) => {
     const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" })
     const url = URL.createObjectURL(blob)
-    
+
     const link = document.createElement("a")
     link.setAttribute("href", url)
     link.setAttribute("download", `${filePrefix}_${new Date().toISOString().split("T")[0]}.csv`)
@@ -93,7 +94,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const handleClearRecords = () => {
     const databaseName = activeTab === "waitlist" ? "waitlist registrations" : "newsletter subscribers"
     const confirmClear = window.confirm(
-      `Are you absolutely sure you want to delete all local ${databaseName}? This action cannot be undone.`
+      `Are you sure you want to delete all local ${databaseName}? This action cannot be undone.`
     )
     if (confirmClear) {
       if (activeTab === "waitlist") {
@@ -111,8 +112,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <StandardCard className="max-w-3xl w-full bg-white relative p-6 border-none shadow-2xl rounded-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col justify-between">
-        
-        {/* Header Block */}
         <div className="flex flex-col gap-3 border-b border-gray-100 pb-3 mb-4">
           <div className="flex justify-between items-center">
             <div className="text-left">
@@ -125,11 +124,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               onClick={onClose}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer font-bold text-xs"
             >
-              Close ✕
+              <IconX className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Navigation Tabs */}
           <div className="flex gap-2 border-b border-gray-100 pb-1 mt-1">
             <button
               onClick={() => setActiveTab("waitlist")}
@@ -154,11 +152,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </div>
         </div>
 
-        {/* Content Table Scrollable area */}
         <div className="flex-grow overflow-y-auto min-h-[300px] border border-gray-100 rounded-xl relative no-scrollbar bg-gray-50/50">
           {activeEntriesCount > 0 ? (
             activeTab === "waitlist" ? (
-              /* Waitlist Signups Table */
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-gray-100 border-b border-gray-200 text-[#4B5563] font-bold uppercase tracking-wider">
@@ -185,7 +181,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </tbody>
               </table>
             ) : (
-              /* Newsletter Subscribers Table */
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-gray-100 border-b border-gray-200 text-[#4B5563] font-bold uppercase tracking-wider">
@@ -209,20 +204,18 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               </table>
             )
           ) : (
-            /* Empty State */
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-              <span className="text-4xl mb-3">📁</span>
+              <IconFolder className="w-10 h-10 text-gray-300 mb-3" />
               <h4 className="text-sm font-bold text-[#121212]">No records found</h4>
               <p className="text-xs text-gray-400 font-semibold max-w-xs mt-1 leading-relaxed">
                 {activeTab === "waitlist"
-                  ? "When visitors sign up through the waiting list form, their details will appear in this administrative panel."
+                  ? "When visitors sign up through the application, their details will appear in this administrative panel."
                   : "When users subscribe to the newsletter updates, their emails will list here."}
               </p>
             </div>
           )}
         </div>
 
-        {/* Action Panel Footer */}
         <div className="border-t border-gray-100 pt-4 mt-4 flex justify-between items-center gap-3">
           <div className="text-left">
             <span className="text-xs font-bold text-[#121212]">
@@ -233,23 +226,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             {activeEntriesCount > 0 && (
               <>
                 <button
-                  type="button"
                   onClick={handleClearRecords}
-                  className="h-10 px-4 rounded-xl border border-red-200 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                  className="px-3 h-9 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 active:bg-red-100 transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
-                  Clear Database
+                  <IconTrash className="w-4 h-4" />
+                  <span>Clear List</span>
                 </button>
-                <PrimaryButton onClick={handleDownloadCSV} className="w-auto px-5 h-10 text-xs shadow-md shadow-primary/10">
-                  Download CSV
+                <PrimaryButton
+                  onClick={handleDownloadCSV}
+                  className="w-auto px-4 h-9 text-xs flex items-center gap-1.5"
+                >
+                  <IconDownload className="w-4 h-4" />
+                  <span>Export CSV</span>
                 </PrimaryButton>
               </>
             )}
-            <button
-              onClick={onClose}
-              className="h-10 px-4 rounded-xl border border-gray-200 text-xs font-semibold text-[#4B5563] hover:bg-gray-50 transition-colors"
-            >
-              Exit Panel
-            </button>
           </div>
         </div>
       </StandardCard>

@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Header } from "../landing-page/sections/header"
 import { Footer } from "../landing-page/sections/footer"
-import { WaitlistModal } from "../landing-page/sections/waitlist-modal"
+import { GetAppModal } from "../landing-page/sections/get-app-modal"
 
 interface PrivacyPageProps {
   onBack: () => void
@@ -148,11 +148,8 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
         </div>
       </main>
 
-      {/* Global Footer */}
       <Footer />
-
-      {/* Waitlist Modal */}
-      <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
+      <GetAppModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
     </div>
   )
 }

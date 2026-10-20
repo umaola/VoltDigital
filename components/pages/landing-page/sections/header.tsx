@@ -1,179 +1,233 @@
 "use client"
 
 import * as React from "react"
-import { PrimaryButton } from "@/components/design-system/button"
+import { IconMenu2, IconX } from "@tabler/icons-react"
+import { Skeleton } from "@/components/design-system/skeleton"
 
-interface HeaderProps {
-  onNavigateToFeatures: () => void
-  onNavigateToFaq: () => void
-  onNavigateToContact: () => void
-  onJoinWaitlist: () => void
-  onNavigateToBlog: () => void
-  onNavigateHome: () => void
+export interface HeaderProps {
+  onNavigateToFeatures?: () => void
+  onNavigateToCalculator?: () => void
+  onNavigateToBlog?: () => void
+  onNavigateToFaq?: () => void
+  onNavigateToContact?: () => void
+  onNavigateHome?: () => void
+  onOpenGetApp?: () => void
+  onOpenWebApp?: () => void
+  onJoinWaitlist?: () => void
+  playStoreUrl?: string
+  appStoreUrl?: string
+  webAppUrl?: string
   isDarkTheme?: boolean
+  isLoading?: boolean
+}
+
+export function HeaderSkeleton() {
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 h-20 border-b border-white/10 bg-[#0B0B12]/80 backdrop-blur-md px-6">
+      <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
+        <Skeleton className="h-8 w-28 bg-white/10 rounded-lg" />
+        <div className="hidden md:flex items-center gap-6">
+          <Skeleton className="h-4 w-16 bg-white/10" />
+          <Skeleton className="h-4 w-20 bg-white/10" />
+          <Skeleton className="h-4 w-14 bg-white/10" />
+          <Skeleton className="h-4 w-12 bg-white/10" />
+        </div>
+        <div className="hidden md:flex items-center gap-3">
+          <Skeleton className="h-10 w-24 bg-white/10 rounded-full" />
+          <Skeleton className="h-10 w-36 bg-white/10 rounded-full" />
+        </div>
+        <Skeleton className="md:hidden h-9 w-9 bg-white/10 rounded-lg" />
+      </div>
+    </header>
+  )
 }
 
 export function Header({
   onNavigateToFeatures,
+  onNavigateToCalculator,
+  onNavigateToBlog,
   onNavigateToFaq,
   onNavigateToContact,
-  onJoinWaitlist,
-  onNavigateToBlog,
   onNavigateHome,
-  isDarkTheme = false
+  onOpenGetApp,
+  onOpenWebApp,
+  onJoinWaitlist,
+  playStoreUrl = "https://play.google.com/store/apps/details?id=com.voltdigitalservices.app",
+  appStoreUrl = "https://apps.apple.com/app/volt-electricity-tracker/id6742389141",
+  webAppUrl = "https://app.voltdigitalservices.com",
+  isLoading = false
 }: HeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
   React.useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true)
-      } else {
-        setIsScrolled(false)
-      }
+      setIsScrolled(window.scrollY > 20)
     }
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const isDarkHeader = isDarkTheme && !isScrolled
+  if (isLoading) {
+    return <HeaderSkeleton />
+  }
+
+  const handleGetAppClick = () => {
+    if (onOpenGetApp) {
+      onOpenGetApp()
+    } else if (onJoinWaitlist) {
+      onJoinWaitlist()
+    } else {
+      window.open(playStoreUrl, "_blank", "noopener,noreferrer")
+    }
+  }
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/80 backdrop-blur-md border-b border-[#F3F4F6] shadow-sm py-3"
+          ? "bg-ink-950/95 backdrop-blur-xl border-b border-white/10 shadow-2xl py-3.5"
           : "bg-transparent py-5"
       }`}
+      style={{
+        backgroundColor: isScrolled ? "rgba(11, 11, 18, 0.95)" : "transparent",
+      }}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Logo and Brand */}
-        <div 
-          className="flex items-center gap-2 cursor-pointer select-none" 
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between">
+        <button
+          type="button"
           onClick={onNavigateHome}
+          className="flex items-center gap-2 cursor-pointer bg-transparent border-0 p-0 select-none group"
         >
-          <img 
-            src="/logo-bold.png" 
-            alt="Volt Logo" 
-            className={`h-7 w-auto object-contain transition-all duration-300 ${
-              isDarkHeader ? "brightness-0 invert" : ""
-            }`} 
+          <img
+            src="/logo-white.png"
+            alt="Volt Logo"
+            className="h-8 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
           />
-        </div>
+        </button>
 
-        {/* Navigation Links - Desktop */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-1 bg-white/[0.04] border border-white/10 backdrop-blur-md px-3 py-1.5 rounded-full">
           <button
+            type="button"
             onClick={onNavigateToFeatures}
-            className={`text-sm font-bold transition-colors cursor-pointer duration-300 ${
-              isDarkHeader ? "text-white/95 hover:text-primary" : "text-[#4B5563] hover:text-[#00BF63]"
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
           >
             Features
           </button>
           <button
+            type="button"
+            onClick={onNavigateToCalculator}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+          >
+            Calculator
+          </button>
+          <button
+            type="button"
+            onClick={onNavigateToBlog}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+          >
+            DisCo Guides
+          </button>
+          <button
+            type="button"
             onClick={onNavigateToFaq}
-            className={`text-sm font-bold transition-colors cursor-pointer duration-300 ${
-              isDarkHeader ? "text-white/95 hover:text-primary" : "text-[#4B5563] hover:text-[#00BF63]"
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
           >
             FAQs
           </button>
           <button
-            onClick={onNavigateToBlog}
-            className={`text-sm font-bold transition-colors cursor-pointer duration-300 ${
-              isDarkHeader ? "text-white/95 hover:text-primary" : "text-[#4B5563] hover:text-[#00BF63]"
-            }`}
-          >
-            Blog
-          </button>
-          <button
+            type="button"
             onClick={onNavigateToContact}
-            className={`text-sm font-bold transition-colors cursor-pointer duration-300 ${
-              isDarkHeader ? "text-white/95 hover:text-primary" : "text-[#4B5563] hover:text-[#00BF63]"
-            }`}
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
           >
-            Contact Us
+            Contact
           </button>
         </nav>
 
-        {/* CTAs - Desktop */}
-        <div className="hidden md:flex items-center gap-3">
-          <PrimaryButton onClick={onJoinWaitlist} className="w-auto px-6 h-10 text-sm shadow-md shadow-primary/10">
-            Join Our Waitlist
-          </PrimaryButton>
+        <div className="hidden sm:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleGetAppClick}
+            className="h-10 px-6 rounded-full bg-[#00BF63] hover:bg-[#00a656] active:bg-[#00924b] text-white text-xs font-bold transition-all shadow-lg shadow-[#00BF63]/25 border border-emerald-400/40 cursor-pointer active:scale-95"
+          >
+            Get App
+          </button>
         </div>
 
-        {/* Hamburger Menu - Mobile */}
         <button
+          type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className={`md:hidden p-1 cursor-pointer transition-colors duration-300 ${
-            isDarkHeader ? "text-white" : "text-[#052e16]"
-          }`}
-          aria-label="Toggle menu"
+          className="lg:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors cursor-pointer"
+          aria-label="Toggle navigation menu"
         >
-          {isMobileMenuOpen ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
+          {isMobileMenuOpen ? <IconX className="w-6 h-6" /> : <IconMenu2 className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-[#F3F4F6] shadow-lg py-6 px-6 flex flex-col gap-5 animate-in fade-in slide-in-from-top duration-200">
+        <div className="lg:hidden absolute top-full inset-x-0 bg-[#0B0B12]/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 shadow-2xl flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <button
+            type="button"
             onClick={() => {
               setIsMobileMenuOpen(false)
-              onNavigateToFeatures()
+              onNavigateToFeatures?.()
             }}
-            className="text-left text-base font-bold text-[#4B5563] py-1 border-b border-gray-50 cursor-pointer"
+            className="text-left text-sm font-semibold text-white/80 hover:text-white py-2 border-b border-white/5 cursor-pointer"
           >
             Features
           </button>
           <button
+            type="button"
             onClick={() => {
               setIsMobileMenuOpen(false)
-              onNavigateToFaq()
+              onNavigateToCalculator?.()
             }}
-            className="text-left text-base font-bold text-[#4B5563] py-1 border-b border-gray-50 cursor-pointer"
+            className="text-left text-sm font-semibold text-white/80 hover:text-white py-2 border-b border-white/5 cursor-pointer"
+          >
+            Calculator
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen(false)
+              onNavigateToBlog?.()
+            }}
+            className="text-left text-sm font-semibold text-white/80 hover:text-white py-2 border-b border-white/5 cursor-pointer"
+          >
+            DisCo Guides
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen(false)
+              onNavigateToFaq?.()
+            }}
+            className="text-left text-sm font-semibold text-white/80 hover:text-white py-2 border-b border-white/5 cursor-pointer"
           >
             FAQs
           </button>
           <button
+            type="button"
             onClick={() => {
               setIsMobileMenuOpen(false)
-              onNavigateToBlog()
+              onNavigateToContact?.()
             }}
-            className="text-left text-base font-bold text-[#4B5563] py-1 border-b border-gray-50 cursor-pointer"
+            className="text-left text-sm font-semibold text-white/80 hover:text-white py-2 border-b border-white/5 cursor-pointer"
           >
-            Blog
+            Contact
           </button>
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false)
-              onNavigateToContact()
-            }}
-            className="text-left text-base font-bold text-[#4B5563] py-1 border-b border-gray-50 cursor-pointer"
-          >
-            Contact Us
-          </button>
-          <div className="flex flex-col gap-3 pt-3">
-            <PrimaryButton
+
+          <div className="pt-3">
+            <button
+              type="button"
               onClick={() => {
                 setIsMobileMenuOpen(false)
-                onJoinWaitlist()
+                handleGetAppClick()
               }}
-              className="w-full text-sm"
+              className="w-full h-11 rounded-full bg-[#00BF63] hover:bg-[#00a656] text-white font-bold text-xs flex items-center justify-center shadow-md shadow-[#00BF63]/25 border border-emerald-400/40 cursor-pointer"
             >
-              Join Our Waitlist
-            </PrimaryButton>
+              Get App
+            </button>
           </div>
         </div>
       )}

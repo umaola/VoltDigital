@@ -1,79 +1,105 @@
 "use client"
 
 import * as React from "react"
-import { StandardCard } from "@/components/design-system/card"
+import { Skeleton } from "@/components/design-system/skeleton"
 
-interface CalculatorSimulatorProps {
+export interface TariffItem {
+  code: string
+  name: string
+  rates: Record<string, number>
+}
+
+export interface CalculatorSimulatorProps {
   initialAmount?: number
   initialBand?: string
   initialDisco?: string
-  onJoinWaitlist?: () => void
-  tariffs: any[] | null
+  onOpenGetApp?: () => void
+  onOpenWebApp?: () => void
+  tariffs: TariffItem[] | null
   isLoading: boolean
 }
 
-const BAND_META: Record<string, { hours: string; color: string; desc: string }> = {
-  "Band A": { hours: "20+ hrs/day", color: "#EF4444", desc: "Premium supply feed" },
-  "Band B": { hours: "16+ hrs/day", color: "#F59E0B", desc: "High supply feed" },
-  "Band C": { hours: "12+ hrs/day", color: "#3B82F6", desc: "Commercial supply feed" },
-  "Band D": { hours: "8+ hrs/day", color: "#10B981", desc: "Residential supply feed" },
-  "Band E": { hours: "4+ hrs/day", color: "#6B7280", desc: "Low supply feed" },
+const BANDS = [
+  { letter: "A", desc: "Premium priority feed", hours: "20+ hrs/day" },
+  { letter: "B", desc: "High supply feed", hours: "16+ hrs/day" },
+  { letter: "C", desc: "Commercial supply feed", hours: "12+ hrs/day" },
+  { letter: "D", desc: "Residential supply feed", hours: "8+ hrs/day" },
+  { letter: "E", desc: "Low supply feed", hours: "4+ hrs/day" },
+]
+
+export function CalculatorSimulatorSkeleton() {
+  return (
+    <section id="calculator" className="py-20 bg-gray-50 border-y border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center gap-3">
+          <Skeleton className="h-6 w-40 rounded-full" />
+          <Skeleton className="h-10 w-96 rounded-2xl" />
+          <Skeleton className="h-4 w-full max-w-xl rounded-md" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          <div className="lg:col-span-5 h-[380px] bg-white rounded-xl border border-[#F3F4F6] p-6" />
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            <div className="h-[180px] bg-white rounded-xl border border-gray-100 p-6" />
+            <div className="h-[180px] bg-white rounded-xl border border-gray-100 p-6" />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 export function CalculatorSimulator({
   initialAmount = 5000,
-  initialBand = "Band A",
+  initialBand = "B",
   initialDisco,
-  onJoinWaitlist,
+  onOpenGetApp,
+  onOpenWebApp,
   tariffs,
   isLoading
 }: CalculatorSimulatorProps) {
-  const [amount, setAmount] = React.useState<number>(initialAmount)
-  const [selectedBand, setSelectedBand] = React.useState<string>(initialBand)
-  
-  const defaultDisco = initialDisco || (tariffs && tariffs.length > 0 ? tariffs[0].code : "ikeja-electric")
+  const [amount, setAmount] = React.useState<number | string>(initialAmount)
+  const [selectedBand, setSelectedBand] = React.useState<string>(
+    initialBand.replace("Band ", "").trim() || "B"
+  )
+
+  const defaultDisco =
+    initialDisco || (tariffs && tariffs.length > 0 ? tariffs[0].code : "ikeja-electric")
   const [selectedDisco, setSelectedDisco] = React.useState<string>(defaultDisco)
 
   React.useEffect(() => {
-    if (tariffs && tariffs.length > 0 && !tariffs.some(t => t.code === selectedDisco)) {
+    if (tariffs && tariffs.length > 0 && !tariffs.some((t) => t.code === selectedDisco)) {
       setSelectedDisco(tariffs[0].code)
     }
-  }, [tariffs])
+  }, [tariffs, selectedDisco])
 
   if (isLoading || !tariffs || tariffs.length === 0) {
-    return (
-      <section className="py-20 bg-gray-50 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-24 mx-auto mb-3" />
-            <div className="h-8 bg-gray-200 rounded w-64 mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-pulse">
-            <div className="lg:col-span-5 h-[380px] bg-gray-200 rounded-2xl" />
-            <div className="lg:col-span-7 h-[380px] bg-gray-200 rounded-2xl" />
-          </div>
-        </div>
-      </section>
-    )
+    return <CalculatorSimulatorSkeleton />
   }
 
   const currentDiscoData = tariffs.find((d) => d.code === selectedDisco) || tariffs[0]
-  const baseRate = currentDiscoData.rates[selectedBand] || 209.50
-  const activeBandMeta = BAND_META[selectedBand] || BAND_META["Band A"]
-  
-  const estimatedUnits = amount / baseRate
+  const currentBandMeta = BANDS.find((b) => b.letter === selectedBand) || BANDS[1]
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value)
-    setAmount(isNaN(val) ? 0 : val)
-  }
+  const bandKey = `Band ${selectedBand}`
+  const baseRate =
+    currentDiscoData?.rates?.[bandKey] ?? currentDiscoData?.rates?.[selectedBand] ?? 61.20
+
+  const numericAmount = Number(amount) || 0
+  const estimatedUnits = numericAmount > 0 && baseRate > 0 ? numericAmount / baseRate : 0
 
   const acHours = estimatedUnits / 1.2
-  const fanHours = estimatedUnits / 0.075
   const fridgeHours = estimatedUnits / 0.25
+  const fanHours = estimatedUnits / 0.075
+
+  const handleReset = () => {
+    setAmount(5000)
+    setSelectedBand("B")
+    if (tariffs && tariffs.length > 0) {
+      setSelectedDisco(tariffs[0].code)
+    }
+  }
 
   return (
-    <section id="calculator" className="py-20 bg-gray-50 border-y border-gray-100">
+    <section className="py-20 bg-gray-50 border-y border-gray-100" id="calculator">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs font-bold uppercase tracking-wider text-primary bg-[#e6fcf0] px-3 py-1 rounded-full">
@@ -89,7 +115,7 @@ export function CalculatorSimulator({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           <div className="lg:col-span-5 flex flex-col justify-between">
-            <StandardCard className="p-6 h-full flex flex-col gap-6 bg-white justify-between">
+            <div className="rounded-xl border border-[#F3F4F6] shadow-[0_2px_8px_rgba(0,0,0,0.08)] p-6 h-full flex flex-col gap-6 bg-white justify-between">
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col text-left gap-1.5">
                   <label htmlFor="disco" className="text-xs font-semibold text-[#4B5563] uppercase tracking-wider">
@@ -101,9 +127,9 @@ export function CalculatorSimulator({
                     onChange={(e) => setSelectedDisco(e.target.value)}
                     className="w-full h-10 px-3 rounded-lg border border-[#E5E7EB] bg-white text-sm text-[#121212] focus:border-primary focus:border-2 hover:border-[#D1D5DB] transition-all outline-none"
                   >
-                    {tariffs.map((d) => (
-                      <option key={d.code} value={d.code}>
-                        {d.name}
+                    {tariffs.map((disco) => (
+                      <option key={disco.code} value={disco.code}>
+                        {disco.name}
                       </option>
                     ))}
                   </select>
@@ -114,23 +140,23 @@ export function CalculatorSimulator({
                     Select Service Feeder Band
                   </label>
                   <div className="grid grid-cols-5 gap-2">
-                    {["Band A", "Band B", "Band C", "Band D", "Band E"].map((bandName) => (
+                    {BANDS.map((band) => (
                       <button
-                        key={bandName}
+                        key={band.letter}
                         type="button"
-                        onClick={() => setSelectedBand(bandName)}
+                        onClick={() => setSelectedBand(band.letter)}
                         className={`h-10 rounded-lg flex items-center justify-center font-bold text-xs border transition-all ${
-                          selectedBand === bandName
+                          selectedBand === band.letter
                             ? "bg-primary border-primary text-white"
                             : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
                         }`}
                       >
-                        {bandName.split(" ")[1]}
+                        {band.letter}
                       </button>
                     ))}
                   </div>
                   <span className="text-[10px] font-semibold text-gray-400 mt-1 block">
-                    {activeBandMeta.desc} • Expected supply hours: {activeBandMeta.hours}
+                    {currentBandMeta.desc} • Expected supply hours: {currentBandMeta.hours}
                   </span>
                 </div>
 
@@ -145,10 +171,10 @@ export function CalculatorSimulator({
                       type="number"
                       min="500"
                       step="500"
-                      value={amount || ""}
-                      onChange={handleAmountChange}
-                      className="w-full h-10 pl-8 pr-3 rounded-lg border border-[#E5E7EB] bg-white text-sm text-[#121212] font-semibold focus:border-primary focus:border-2 hover:border-[#D1D5DB] transition-all outline-none"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value === "" ? "" : Number(e.target.value))}
                       placeholder="e.g. 5000"
+                      className="w-full h-10 pl-8 pr-3 rounded-lg border border-[#E5E7EB] bg-white text-sm text-[#121212] font-semibold focus:border-primary focus:border-2 hover:border-[#D1D5DB] transition-all outline-none"
                     />
                   </div>
                   <span className="text-[10px] text-gray-400 font-semibold block">
@@ -160,32 +186,28 @@ export function CalculatorSimulator({
               <div className="pt-4 border-t border-gray-100 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setAmount(5000)
-                    setSelectedBand("Band A")
-                    if (tariffs && tariffs.length > 0) {
-                      setSelectedDisco(tariffs[0].code)
-                    }
-                  }}
+                  onClick={handleReset}
                   className="flex-1 h-10 rounded-lg border border-gray-200 text-xs font-semibold text-[#4B5563] hover:bg-gray-50 transition-colors"
                 >
                   Reset Calculator
                 </button>
                 <button
                   type="button"
-                  onClick={onJoinWaitlist}
+                  onClick={onOpenGetApp}
                   className="flex-1 h-10 rounded-lg bg-primary hover:bg-[#00a656] text-white flex items-center justify-center text-xs font-semibold shadow-md shadow-primary/10 transition-colors cursor-pointer"
                 >
                   Save in App
                 </button>
               </div>
-            </StandardCard>
+            </div>
           </div>
 
           <div className="lg:col-span-7 flex flex-col gap-6">
-            <StandardCard className="p-6 bg-white border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] p-6 bg-white border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="text-left w-full md:w-auto">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Estimated Balance</span>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  Estimated Balance
+                </span>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-5xl font-extrabold text-[#121212] tracking-tight">
                     {estimatedUnits.toFixed(2)}
@@ -193,13 +215,16 @@ export function CalculatorSimulator({
                   <span className="text-lg font-bold text-[#4B5563]">kWh</span>
                 </div>
                 <p className="text-xs text-gray-500 font-medium mt-1">
-                  Based on current {currentDiscoData.name} rates for {selectedBand}.
+                  Based on current {currentDiscoData.name} rates for Band {selectedBand}.
                 </p>
                 <div className="flex items-start gap-1.5 mt-3 max-w-[280px] border-t border-gray-100 pt-3">
                   <span className="text-[10px] shrink-0">⚠️</span>
                   <p className="text-[10px] text-gray-400 font-semibold leading-normal">
                     The above units are estimates. Actual values may vary.{" "}
-                    <a href="/?page=blog&post=6" className="text-primary hover:underline font-bold">Understand why</a>.
+                    <a href="/?page=blog&post=6" className="text-primary hover:underline font-bold">
+                      Understand why
+                    </a>
+                    .
                   </p>
                 </div>
               </div>
@@ -218,9 +243,9 @@ export function CalculatorSimulator({
                   <span className="text-primary">₦{baseRate.toFixed(2)}/kWh</span>
                 </div>
               </div>
-            </StandardCard>
+            </div>
 
-            <StandardCard className="p-6 bg-white border border-gray-100 text-left">
+            <div className="rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] p-6 bg-white border border-gray-100 text-left">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
                 What does this get me?
               </h3>
@@ -231,9 +256,11 @@ export function CalculatorSimulator({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v20M17 5L7 19M19 12H5M17 19L7 5M12 8l3-3M12 16l-3 3M16 12l3 3M8 12l-3-3" />
                     </svg>
                   </div>
-                  <span className="text-xs font-bold text-[#EF4444] uppercase tracking-wider mt-1">1.5 HP Inverter AC</span>
+                  <span className="text-xs font-bold text-[#EF4444] uppercase tracking-wider mt-1">
+                    1.5 HP Inverter AC
+                  </span>
                   <span className="text-base font-extrabold text-[#121212]">
-                    {acHours >= 1 ? `${acHours.toFixed(1)} hrs` : `${Math.round(acHours * 60)} mins`}
+                    {acHours.toFixed(1)} hrs
                   </span>
                   <span className="text-[10px] text-gray-500">Continuous cooling</span>
                 </div>
@@ -245,9 +272,11 @@ export function CalculatorSimulator({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 6v2M9 14v4" />
                     </svg>
                   </div>
-                  <span className="text-xs font-bold text-[#16A34A] uppercase tracking-wider mt-1">Double Door Fridge</span>
+                  <span className="text-xs font-bold text-[#16A34A] uppercase tracking-wider mt-1">
+                    Double Door Fridge
+                  </span>
                   <span className="text-base font-extrabold text-[#121212]">
-                    {fridgeHours >= 1 ? `${fridgeHours.toFixed(1)} hrs` : `${Math.round(fridgeHours * 60)} mins`}
+                    {fridgeHours.toFixed(1)} hrs
                   </span>
                   <span className="text-[10px] text-gray-500">Food preservation</span>
                 </div>
@@ -258,14 +287,16 @@ export function CalculatorSimulator({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 12m-3 0a3 3 0 1 0 6 0 3 3 0 1 0 -6 0M12 2v7M12 15v7M2 12h7M15 12h7" />
                     </svg>
                   </div>
-                  <span className="text-xs font-bold text-[#3B82F6] uppercase tracking-wider mt-1">Standing Fan</span>
+                  <span className="text-xs font-bold text-[#3B82F6] uppercase tracking-wider mt-1">
+                    Standing Fan
+                  </span>
                   <span className="text-base font-extrabold text-[#121212]">
-                    {fanHours >= 1 ? `${fanHours.toFixed(1)} hrs` : `${Math.round(fanHours * 60)} mins`}
+                    {fanHours.toFixed(1)} hrs
                   </span>
                   <span className="text-[10px] text-gray-500">Constant ventilation</span>
                 </div>
               </div>
-            </StandardCard>
+            </div>
           </div>
         </div>
       </div>

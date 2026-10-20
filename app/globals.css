@@ -17,6 +17,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-ink-950: #0b0b12;
+  --color-ink-900: #12121a;
+  --color-ink-850: #161622;
+  --color-ink-800: #1a1a24;
+  --color-ink-700: #222230;
+  --color-volt-green: #00bf63;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;

@@ -1,267 +1,250 @@
 "use client"
 
 import * as React from "react"
-import { StandardCard, DashboardCard } from "@/components/design-system/card"
+import {
+  IconSnowflake,
+  IconFridge,
+  IconPropeller,
+  IconFlame
+} from "@tabler/icons-react"
+import { Skeleton } from "@/components/design-system/skeleton"
 
-interface ApplianceItem {
+export interface ApplianceItem {
   id: string
   name: string
-  emoji: string
+  icon: React.ComponentType<{ className?: string }>
   defaultWatts: number
   defaultHours: number
 }
 
-interface ApplianceSimulatorProps {
-  onJoinWaitlist?: () => void
+export interface ApplianceSimulatorProps {
+  onOpenGetApp?: () => void
+  onOpenWebApp?: () => void
   tariffs: any[] | null
   isLoading: boolean
 }
 
 const APPLIANCES: ApplianceItem[] = [
-  { id: "ac", name: "Air Conditioner", emoji: "❄️", defaultWatts: 1500, defaultHours: 4 },
-  { id: "fridge", name: "Refrigerator", emoji: "🥦", defaultWatts: 250, defaultHours: 24 },
-  { id: "fan", name: "Fan", emoji: "🌀", defaultWatts: 75, defaultHours: 8 },
-  { id: "tv", name: "TV", emoji: "📺", defaultWatts: 100, defaultHours: 6 },
-  { id: "microwave", name: "Microwave", emoji: "🍲", defaultWatts: 800, defaultHours: 0.5 },
+  { id: "ac", name: "Air Conditioner", icon: IconSnowflake, defaultWatts: 1500, defaultHours: 4 },
+  { id: "fridge", name: "Refrigerator", icon: IconFridge, defaultWatts: 250, defaultHours: 24 },
+  { id: "fan", name: "Standing Fan", icon: IconPropeller, defaultWatts: 75, defaultHours: 8 },
 ]
 
-export function ApplianceSimulator({ onJoinWaitlist, tariffs, isLoading }: ApplianceSimulatorProps) {
+export function ApplianceSimulatorSkeleton() {
+  return (
+    <section id="audit" className="py-24 bg-[#FBFBFD] border-t border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col items-center gap-3">
+          <Skeleton className="h-6 w-32 rounded-full" />
+          <Skeleton className="h-12 w-80 rounded-2xl" />
+          <Skeleton className="h-4 w-96 rounded-md" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-7 flex flex-col gap-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+            ))}
+          </div>
+          <div className="lg:col-span-5 h-[340px] bg-white rounded-3xl p-6" />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export function ApplianceSimulator({
+  onOpenGetApp,
+  onOpenWebApp,
+  tariffs,
+  isLoading
+}: ApplianceSimulatorProps) {
   const defaultDisco = tariffs && tariffs.length > 0 ? tariffs[0].code : "ikeja-electric"
   const [selectedDisco, setSelectedDisco] = React.useState<string>(defaultDisco)
   const [selectedBand, setSelectedBand] = React.useState<string>("Band A")
-  
+
   const [activeAppliances, setActiveAppliances] = React.useState<Record<string, boolean>>({
     ac: true,
     fridge: true,
     fan: true,
-    tv: false,
-    microwave: false,
   })
+
   const [usageHours, setUsageHours] = React.useState<Record<string, number>>({
     ac: 4,
     fridge: 24,
     fan: 8,
-    tv: 6,
-    microwave: 0.5,
   })
 
   React.useEffect(() => {
-    if (tariffs && tariffs.length > 0 && !tariffs.some(t => t.code === selectedDisco)) {
+    if (tariffs && tariffs.length > 0 && !tariffs.some((t) => t.code === selectedDisco)) {
       setSelectedDisco(tariffs[0].code)
     }
-  }, [tariffs])
+  }, [tariffs, selectedDisco])
 
   if (isLoading || !tariffs || tariffs.length === 0) {
-    return (
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-24 mx-auto mb-3" />
-            <div className="h-8 bg-gray-200 rounded w-64 mx-auto" />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-pulse">
-            <div className="lg:col-span-7 flex flex-col gap-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-20 bg-gray-100 rounded-xl" />
-              ))}
-            </div>
-            <div className="lg:col-span-5 h-[400px] bg-gray-200 rounded-2xl" />
-          </div>
-        </div>
-      </section>
-    )
+    return <ApplianceSimulatorSkeleton />
   }
 
   const currentDiscoData = tariffs.find((d) => d.code === selectedDisco) || tariffs[0]
-  const activeRate = currentDiscoData.rates[selectedBand] || 209.50
+  const baseRate = currentDiscoData.rates[selectedBand] || 209.50
 
-  const handleToggle = (id: string) => {
+  const toggleAppliance = (id: string) => {
     setActiveAppliances((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
   const handleHoursChange = (id: string, hours: number) => {
-    setUsageHours((prev) => ({ ...prev, [id]: Math.min(24, Math.max(0.1, hours)) }))
+    setUsageHours((prev) => ({ ...prev, [id]: hours }))
   }
 
-  let totalDailyKwh = 0
+  let totalDailyKWh = 0
   APPLIANCES.forEach((app) => {
     if (activeAppliances[app.id]) {
-      const watts = app.defaultWatts
-      const hours = usageHours[app.id]
-      totalDailyKwh += (watts * hours) / 1000
+      const hours = usageHours[app.id] || 0
+      totalDailyKWh += (app.defaultWatts * hours) / 1000
     }
   })
 
-  const totalMonthlyKwh = totalDailyKwh * 30
-  const totalMonthlyCost = totalMonthlyKwh * activeRate
+  const estimatedDailyCost = totalDailyKWh * baseRate
+  const estimatedMonthlyCost = estimatedDailyCost * 30
 
   return (
-    <section id="auditor" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary bg-[#e6fcf0] px-3 py-1 rounded-full">
-            Interactive Energy Auditor
+    <section id="audit" className="py-24 bg-[#FBFBFD] border-t border-gray-100 text-[#121212]">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#00BF63] bg-emerald-50 border border-emerald-200/60 px-3.5 py-1.5 rounded-full">
+            Appliance Audit
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#052e16] tracking-tight mt-3">
-            Audit Your Household Consumption
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#052e16] tracking-tight mt-4">
+            Interactive Energy Auditor
           </h2>
-          <p className="text-[#4B5563] text-sm sm:text-base font-medium mt-3 leading-relaxed">
-            Find out exactly what powers your home. Toggle standard Nigerian household appliances and adjust their hours to see how they impact your monthly bill.
+          <p className="text-gray-600 text-sm sm:text-base font-medium mt-3 leading-relaxed">
+            Toggle your household equipment and adjust run times to see daily energy drain and monthly bill impact.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          <div className="lg:col-span-7 flex flex-col gap-4 text-left">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">
-              Select & Configure Devices
-            </h3>
-
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-7 flex flex-col gap-3.5">
             {APPLIANCES.map((app) => {
+              const Icon = app.icon
               const isActive = activeAppliances[app.id]
-              const hours = usageHours[app.id]
+              const currentHours = usageHours[app.id]
+              const dailyDeviceKWh = ((app.defaultWatts * currentHours) / 1000).toFixed(2)
 
               return (
-                <StandardCard
+                <div
                   key={app.id}
-                  className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all border ${
-                    isActive ? "border-primary bg-[#e6fcf0]/10" : "border-gray-100 bg-white"
+                  className={`p-5 rounded-2xl border transition-all text-left ${
+                    isActive
+                      ? "border-[#00BF63]/40 bg-white shadow-sm"
+                      : "border-gray-200/70 bg-white/60 opacity-60"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      onClick={() => handleToggle(app.id)}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all ${
-                        isActive ? "bg-primary/20 scale-105" : "bg-gray-100 opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      {app.emoji}
-                    </div>
-                    <div className="text-left">
-                      <h4 className="text-sm font-bold text-[#121212]">{app.name}</h4>
-                      <p className="text-[10px] text-gray-500 font-semibold">{app.defaultWatts} Watts power draw</p>
-                    </div>
-                  </div>
-
-                  {isActive ? (
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleHoursChange(app.id, hours - 1)}
-                          className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 flex items-center justify-center font-bold text-xs"
-                          disabled={hours <= 1}
-                        >
-                          -
-                        </button>
-                        <span className="text-xs font-bold text-[#121212] w-12 text-center">
-                          {hours >= 1 ? `${hours.toFixed(0)} hrs` : `${Math.round(hours * 60)} min`}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleHoursChange(app.id, hours + 1)}
-                          className="w-7 h-7 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 flex items-center justify-center font-bold text-xs"
-                          disabled={hours >= 24}
-                        >
-                          +
-                        </button>
+                  <div className="flex items-center justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-3.5">
+                      <div
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+                          isActive ? "bg-emerald-50 text-[#00BF63]" : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
                       </div>
-                      <span className="text-xs font-bold text-primary w-16 text-right">
-                        {(((app.defaultWatts * hours) / 1000)).toFixed(2)} kWh/d
-                      </span>
+                      <div>
+                        <h4 className="text-sm font-bold text-[#121212]">{app.name}</h4>
+                        <span className="text-xs text-gray-500 font-medium">
+                          {app.defaultWatts} Watts power rating
+                        </span>
+                      </div>
                     </div>
-                  ) : (
+
                     <button
                       type="button"
-                      onClick={() => handleToggle(app.id)}
-                      className="h-8 px-4 rounded-lg bg-gray-100 text-xs font-bold text-[#4B5563] hover:bg-gray-200 transition-colors"
+                      onClick={() => toggleAppliance(app.id)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        isActive
+                          ? "bg-[#00BF63] text-white shadow-sm"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
                     >
-                      Add Device
+                      {isActive ? "Active" : "Disabled"}
                     </button>
+                  </div>
+
+                  {isActive && (
+                    <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1">
+                        <span className="text-xs text-gray-500 font-semibold w-24">
+                          {currentHours} hrs daily
+                        </span>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="24"
+                          step="0.5"
+                          value={currentHours}
+                          onChange={(e) => handleHoursChange(app.id, parseFloat(e.target.value))}
+                          className="w-full accent-[#00BF63] h-1.5 bg-gray-200 rounded-lg cursor-pointer"
+                        />
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-bold text-[#052e16]">
+                          {dailyDeviceKWh} kWh per day
+                        </span>
+                      </div>
+                    </div>
                   )}
-                </StandardCard>
+                </div>
               )
             })}
           </div>
 
-          <div className="lg:col-span-5 flex flex-col justify-between">
-            <DashboardCard className="p-6 h-full flex flex-col gap-6 justify-between bg-white text-left">
-              <div>
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
-                  Energy Consumption Report
-                </h3>
-
-                <div className="flex flex-col gap-1.5 mb-4">
-                  <label htmlFor="appliance-disco" className="text-xs font-semibold text-[#4B5563] uppercase tracking-wider">
-                    Select Disco Provider
-                  </label>
-                  <select
-                    id="appliance-disco"
-                    value={selectedDisco}
-                    onChange={(e) => setSelectedDisco(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg border border-[#E5E7EB] bg-white text-xs text-[#121212] focus:border-primary focus:border-2 hover:border-[#D1D5DB] transition-all outline-none"
-                  >
-                    {tariffs.map((d) => (
-                      <option key={d.code} value={d.code}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5 mb-6">
-                  <span className="text-xs font-semibold text-[#4B5563] uppercase tracking-wider">
-                    Select Billing Feeder Band
-                  </span>
-                  <div className="grid grid-cols-5 gap-1.5">
-                    {["Band A", "Band B", "Band C", "Band D", "Band E"].map((band) => (
-                      <button
-                        key={band}
-                        type="button"
-                        onClick={() => setSelectedBand(band)}
-                        className={`h-8 rounded-lg font-bold text-[10px] border transition-all ${
-                          selectedBand === band
-                            ? "bg-primary border-primary text-white"
-                            : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
-                        }`}
-                      >
-                        {band.split(" ")[1]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-4 border-t border-gray-100 pt-5">
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col text-left">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Daily consumption</span>
-                      <span className="text-2xl font-bold text-[#121212]">{totalDailyKwh.toFixed(2)} <span className="text-sm text-gray-500 font-medium">kWh/day</span></span>
-                    </div>
-                    <div className="flex flex-col text-right">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Monthly energy</span>
-                      <span className="text-2xl font-bold text-[#121212]">{totalMonthlyKwh.toFixed(1)} <span className="text-sm text-gray-500 font-medium">kWh/mo</span></span>
-                    </div>
-                  </div>
-                </div>
+          <div className="lg:col-span-5 p-7 sm:p-8 bg-white border border-gray-200/80 shadow-xl rounded-3xl flex flex-col gap-6 text-left sticky top-28">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                <IconFlame className="w-4 h-4" />
               </div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#121212]">
+                Total Audit Summary
+              </h3>
+            </div>
 
-              <div className="bg-[#e6fcf0] p-4 rounded-xl border border-primary/20 flex flex-col gap-1 items-start mt-6">
-                <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Estimated Monthly Bill</span>
-                <span className="text-3xl font-extrabold text-[#052e16] tracking-tight">
-                  ₦{totalMonthlyCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-                <span className="text-[10px] text-[#334155] font-semibold mt-1">
-                  At ₦{activeRate.toFixed(2)}/kWh rate (VAT inclusive).
+            <div className="flex flex-col gap-4 bg-[#F8F9FA] p-5 rounded-2xl border border-gray-100">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-semibold text-gray-500">Daily Electricity Draw</span>
+                <span className="text-base font-extrabold text-[#121212]">
+                  {totalDailyKWh.toFixed(2)} kWh
                 </span>
               </div>
 
+              <div className="flex justify-between items-center border-t border-gray-200/60 pt-3">
+                <span className="text-xs font-semibold text-gray-500">Estimated Daily Cost</span>
+                <span className="text-base font-extrabold text-[#00BF63]">
+                  ₦{estimatedDailyCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center border-t border-gray-200/60 pt-3">
+                <span className="text-xs font-semibold text-gray-500">Projected 30 Day Cost</span>
+                <span className="text-2xl font-black text-[#052e16]">
+                  ₦{estimatedMonthlyCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
               <button
                 type="button"
-                onClick={onJoinWaitlist}
-                className="w-full h-11 bg-[#121212] hover:bg-black text-white rounded-xl flex items-center justify-center font-bold text-xs transition-colors mt-6 shadow-md cursor-pointer"
+                onClick={onOpenGetApp}
+                className="w-full h-12 rounded-full bg-[#00BF63] hover:bg-[#00a656] text-white text-xs font-semibold transition-all shadow-md shadow-[#00BF63]/25 cursor-pointer"
               >
-                Track Appliances in App
+                Download Volt on Android
               </button>
-            </DashboardCard>
+              <button
+                type="button"
+                onClick={onOpenWebApp}
+                className="w-full h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-[#121212] text-xs font-semibold transition-all cursor-pointer"
+              >
+                Open Universal Web App
+              </button>
+            </div>
           </div>
         </div>
       </div>
