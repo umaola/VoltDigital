@@ -152,7 +152,7 @@ export function CookieConsent({
       </div>
 
       <p className="text-xs text-gray-600 leading-relaxed font-normal">
-        We use cookies and device storage to retain your selected DisCo tariff preferences, preserve purchase simulations, and measure app adoption under the Nigeria Data Protection Act (NDPA).
+        We use cookies and device storage to retain your selected DisCo tariff preferences, preserve calculation simulations, and measure app adoption under the Nigeria Data Protection Act (NDPA).
       </p>
 
       {showPreferences && (

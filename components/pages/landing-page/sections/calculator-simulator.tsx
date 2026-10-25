@@ -106,7 +106,7 @@ export function CalculatorSimulator({
             Interactive Calculator
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#052e16] tracking-tight mt-3">
-            Simulate Your Electricity Purchase
+            Simulate Your Electricity Units
           </h2>
           <p className="text-[#4B5563] text-sm sm:text-base font-medium mt-3 leading-relaxed">
             Nigerian electricity tariffs depend heavily on your Disco provider and Feeder Band. Input any amount to see exactly how many units (kWh) you will get after taxes.
@@ -183,20 +183,13 @@ export function CalculatorSimulator({
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-100 flex gap-2">
+              <div className="pt-4 border-t border-gray-100 flex">
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="flex-1 h-10 rounded-lg border border-gray-200 text-xs font-semibold text-[#4B5563] hover:bg-gray-50 transition-colors"
+                  className="w-full h-10 rounded-lg border border-gray-200 text-xs font-semibold text-[#4B5563] hover:bg-gray-50 transition-colors"
                 >
                   Reset Calculator
-                </button>
-                <button
-                  type="button"
-                  onClick={onOpenGetApp}
-                  className="flex-1 h-10 rounded-lg bg-primary hover:bg-[#00a656] text-white flex items-center justify-center text-xs font-semibold shadow-md shadow-primary/10 transition-colors cursor-pointer"
-                >
-                  Save in App
                 </button>
               </div>
             </div>
